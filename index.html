@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <title>Shoot & Scoot</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: white;
+            color: black;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Center vertically */
+            align-items: center; /* Center horizontally */
+            height: 100vh; /* Full viewport height */
+            text-align: center;
+        }
+
+        .center-image {
+            width: 300px; /* Set the image width */
+            height: 300px; /* Set the image height */
+        }
+
+        h1 {
+            color: #2596be;
+            margin-top: 20px;
+        }
+
+        p {
+            max-width: 600px;
+            margin: 10px 0;
+        }
+
+        .button {
+            background-color: #bea235;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            margin: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        .button:hover {
+            background-color: #a88e2d;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="ss.png" alt="Shoot & Scoot Logo" class="center-image">
+        <p>A lightweight screenshot tool that captures your screen and compiles images into a PDF with simple hotkeys.</p>
+        <a href="https://github.com/mvishok/shoot-scoot/releases/latest/download/setup.exe" class="button">Download</a>
+    </div>
+</body>
+</html>
