@@ -5,8 +5,6 @@ VisualStudioVersion = 17.10.35013.160
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shoot&Scoot", "Shoot&Scoot.csproj", "{445732A5-B8BD-409A-AF65-F7C35E820E61}"
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "SSInst", "..\SSInst\SSInst.vdproj", "{1200FEBB-AC8F-4AEB-B896-79116E002B20}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -17,8 +15,6 @@ Global
 		{445732A5-B8BD-409A-AF65-F7C35E820E61}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{445732A5-B8BD-409A-AF65-F7C35E820E61}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{445732A5-B8BD-409A-AF65-F7C35E820E61}.Release|Any CPU.Build.0 = Release|Any CPU
-		{1200FEBB-AC8F-4AEB-B896-79116E002B20}.Debug|Any CPU.ActiveCfg = Debug
-		{1200FEBB-AC8F-4AEB-B896-79116E002B20}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
