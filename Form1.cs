@@ -6,6 +6,8 @@ using System.Runtime.InteropServices;
 using System.IO;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
+using System.Net.Http;
+using Newtonsoft.Json.Linq;
 
 namespace Shoot_Scoot
 {
@@ -31,16 +33,45 @@ namespace Shoot_Scoot
             InitializeComponent();
         }
 
+        private void update()
+        {
+            //check for updates from github releases. if yes then install silently and notify user to restart the app
+            string url = "https://api.github.com/repos/mvishok/shoot-scoot/releases/latest";
+            var client = new HttpClient();
+            client.DefaultRequestHeaders.UserAgent.ParseAdd("FADE/1.0");
+            string response = client.GetStringAsync(url).Result;
+            Version nv = new Version(response.Split(new string[] { "\"tag_name\":\"" }, StringSplitOptions.None)[1].Split('"')[0]);
+            Version cv = new Version("0.1.0");
+            if (nv > cv)
+            {
+                try
+                {
+                    //download the latest release
+                    string downloadUrl = response.Split(new string[] { "\"browser_download_url\":\"" }, StringSplitOptions.None)[1].Split('"')[0];
+                    string downloadPath = Path.Combine(Path.GetTempPath(), "shoot-scoot-update.exe");
+                    new System.Net.WebClient().DownloadFile(downloadUrl, downloadPath);
+
+                    //install the update
+                    System.Diagnostics.Process.Start(downloadPath, "/VERYSILENT /FORCECLOSEAPPLICATIONS /RESTARTAPPLICATIONS");
+                } catch (Exception e)
+                {
+                    MessageBox.Show("Error updating the application: " + e.Message, "Shoot&Scoot", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
         private async void Form1_LoadAsync(object sender, EventArgs e)
         {
             this.TopMost = true;
 
             // Prevent multiple instances
-            if (System.Diagnostics.Process.GetProcessesByName(System.Diagnostics.Process.GetCurrentProcess().ProcessName).Length > 1)
+            if (IsAnotherInstanceRunning())
             {
                 MessageBox.Show("Another instance of the application is already running", "Shoot&Scoot", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 Application.Exit();
             }
+
+            update();
 
             if (!Directory.Exists(PATH))
             {
@@ -93,6 +124,11 @@ namespace Shoot_Scoot
             UnregisterHotKey(this.Handle, MYACTION_HOTKEY_ID + 1);
         }
 
+        private bool IsAnotherInstanceRunning()
+        {
+            return System.Diagnostics.Process.GetProcessesByName(System.Diagnostics.Process.GetCurrentProcess().ProcessName).Length > 1;
+        }
+
         private void HandleScreenshotHotkey()
         {
             TakeScreenshot();
@@ -101,10 +137,9 @@ namespace Shoot_Scoot
 
             pictureBox1.Size = new Size(width, height);
             this.Size = new Size(width, height);
-            shortcut.Hide();
 
             pictureBox1.Image = Image.FromFile(Path.Combine(PATH, $"{count - 1}.png"));
-
+            shortcut.Hide();
             ShowForm();
 
             Task.Delay(500).Wait();
@@ -114,71 +149,30 @@ namespace Shoot_Scoot
             MinimizeForm();
 
             RegisterHotKeys();
-
-            shortcut.Show();
         }
 
         private void HandleSaveHotkey()
         {
             if (count == 0)
-            {
-                MessageBox.Show("No screenshots taken yet", "Shoot&Scoot", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                RegisterHotKeys();
                 return;
-            }
 
             string pdfPath = CompilePDF();
 
             if (pdfPath != null)
             {
-                InitializePictureBoxSize();
-                ShowForm(true);
-
-                Task.Delay(1500).Wait();
-
-                Application.Exit();
+                MessageBox.Show($"PDF saved to {pdfPath}", "Shoot&Scoot", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                return;
+            } else
+            {
+                MessageBox.Show("Error saving PDF", "Shoot&Scoot", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        private void InitializePictureBoxSize()
+        private void ShowForm()
         {
-            pictureBox1.Size = new Size(300, 300);
-            this.Size = new Size(300, 300);
-
-            pictureBox1.Image = Shoot_Scoot.Properties.Resources.ss;
-
-            shortcut.Show();
-            vishok.Show();
-
-            status1.Show();
-            status2.Show();
-
-            status2.Text = "INACTIVE";
-            status2.ForeColor = Color.Red;
-
-            shortcut.Text = "Exiting Shoot&Scoot";
-
-            Task.Delay(800).Wait();
-            
-            Directory.Delete(PATH, true);
-            Application.Exit();
-        }
-
-        private void ShowForm(bool tq = false)
-        {
-            if (tq)
-            {
-                shortcut.Text = "Thank you for using Shoot&Scoot!";
-                ShowForm();
-            }
-            else
-            {
-                this.WindowState = FormWindowState.Normal;
-                this.ShowInTaskbar = true;
-                this.Show();
-                this.Activate();
-                this.BringToFront();
-            }
+            this.WindowState = FormWindowState.Normal;
+            this.ShowInTaskbar = true;
+            this.Show();
             this.Activate();
             this.BringToFront();
         }
@@ -232,13 +226,9 @@ namespace Shoot_Scoot
                 PdfDocument doc;
 
                 if (File.Exists(filePath))
-                {
                     doc = PdfSharp.Pdf.IO.PdfReader.Open(filePath, PdfSharp.Pdf.IO.PdfDocumentOpenMode.Modify);
-                }
                 else
-                {
                     doc = new PdfDocument();
-                }
 
                 AddScreenshotsToPDF(doc);
 

@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Shoot&Scoot")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("A lightweight screenshot tool that captures your screen and compiles images into a PDF with simple hotkeys")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("Vishok Manikantan")]
 [assembly: AssemblyProduct("Shoot&Scoot")]
-[assembly: AssemblyCopyright("Copyright ©  2024")]
+[assembly: AssemblyCopyright("Copyright © 2024 Vishok Manikantan")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
