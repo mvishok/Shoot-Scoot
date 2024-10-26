@@ -18,15 +18,15 @@
         .container {
             display: flex;
             flex-direction: column;
-            justify-content: center; /* Center vertically */
-            align-items: center; /* Center horizontally */
-            height: 100vh; /* Full viewport height */
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
             text-align: center;
         }
 
         .center-image {
-            width: 300px; /* Set the image width */
-            height: 300px; /* Set the image height */
+            width: 300px;
+            height: 300px;
         }
 
         h1 {
@@ -39,32 +39,40 @@
             margin: 10px 0;
         }
 
-        .button {
-            background-color: #bea235;
-            color: white;
-            border: none;
+        .button-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .button, .android, .github {
             padding: 15px 30px;
-            margin: 10px;
             cursor: pointer;
             border-radius: 5px;
             text-decoration: none;
             font-size: 16px;
+            color: white;
+            border: none;
         }
 
+        .button {
+            background-color: #bea235;
+        }
+        
         .button:hover {
             background-color: #a88e2d;
         }
 
+        .android {
+            background-color: #a4c639;
+        }
+
+        .android:hover {
+            background-color: #9db847;
+        }
+
         .github {
             background-color: black;
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            margin: 10px;
-            cursor: pointer;
-            border-radius: 5px;
-            text-decoration: none;
-            font-size: 16px;
         }
 
         .github:hover {
@@ -76,8 +84,12 @@
     <div class="container">
         <img src="ss.png" alt="Shoot & Scoot Logo" class="center-image">
         <p>A lightweight screenshot tool that captures your screen and compiles images into a PDF with simple hotkeys.</p>
-        <a href="https://github.com/mvishok/shoot-scoot/releases/latest/download/SSInstaller.zip" class="button">Download</a>
-        <a href="https://github.com/mvishok/shoot-scoot/" class="github">Github</a>
+        
+        <div class="button-container">
+            <a href="https://github.com/mvishok/shoot-scoot/releases/latest/download/shoot-scoot.exe" class="button">Windows</a>
+            <a href="https://github.com/mvishok/shoot-scoot/" class="github">Github</a>
+            <a href="https://github.com/mvishok/shoot-scoot/releases/latest/download/shootscoot.apk" class="android">Android</a>
+        </div>
     </div>
 </body>
 </html>
