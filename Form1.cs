@@ -44,7 +44,7 @@ namespace Shoot_Scoot
             client.DefaultRequestHeaders.UserAgent.ParseAdd("FADE/1.0");
             string response = client.GetStringAsync(url).Result;
             Version nv = new Version(response.Split(new string[] { "\"tag_name\":\"" }, StringSplitOptions.None)[1].Split('"')[0]);
-            Version cv = new Version("0.1.0");
+            Version cv = new Version("1.2");
             if (nv > cv)
             {
                 try
