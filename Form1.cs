@@ -8,17 +8,20 @@ using PdfSharp.Drawing;
 using PdfSharp.Pdf;
 using System.Net.Http;
 using Newtonsoft.Json.Linq;
+using System.Net.Sockets;
+using System.Text;
 
 namespace Shoot_Scoot
 {
     public partial class Form1 : Form
     {
-        private string PATH = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+        private readonly string PATH = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
         private int count = 0;
 
         private const uint MOD_ALT = 0x0001; // Alt key
         private const uint VK_S = 0x53; // S key
         private const uint VK_INSERT = 0x2D; // Insert key
+        private const uint VK_Q = 0x51; // Q key
 
         [DllImport("user32.dll")]
         public static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
@@ -102,6 +105,10 @@ namespace Shoot_Scoot
                 {
                     HandleSaveHotkey();
                 }
+                else if (id == MYACTION_HOTKEY_ID + 2) // Alt + Q
+                {
+                    HandleSendScreenshotHotkey();
+                }
             }
 
             base.WndProc(ref m);
@@ -116,6 +123,7 @@ namespace Shoot_Scoot
         {
             RegisterHotKey(this.Handle, MYACTION_HOTKEY_ID, MOD_ALT, VK_INSERT);
             RegisterHotKey(this.Handle, MYACTION_HOTKEY_ID + 1, MOD_ALT, VK_S);
+            RegisterHotKey(this.Handle, MYACTION_HOTKEY_ID + 2, MOD_ALT, VK_Q);
         }
 
         private void UnregisterHotKeys()
@@ -286,6 +294,122 @@ namespace Shoot_Scoot
                 }
 
                 return (width, height);
+            }
+        }
+
+        private void HandleSendScreenshotHotkey()
+        {
+            TakeScreenshot();
+            string screenshotPath = Path.Combine(PATH, $"{count - 1}.png");
+
+            string androidIpAddress = GetAndroidIpAddress();
+
+            bool success = SendScreenshot(screenshotPath, androidIpAddress);
+            if (!success)
+            {
+                MessageBox.Show("Failed to send screenshot. Please check the IP address.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        private string GetAndroidIpAddress()
+        {
+            string ipFilePath = "ip.txt";
+            if (File.Exists(ipFilePath))
+            {
+                return File.ReadAllText(ipFilePath);
+            }
+
+            string ipAddress = PromptForIpAddress();
+            File.WriteAllText(ipFilePath, ipAddress);
+            return ipAddress;
+        }
+
+        private string PromptForIpAddress()
+        {
+            using (var inputForm = new Form())
+            {
+                inputForm.Text = "Enter IP Address";
+                inputForm.FormBorderStyle = FormBorderStyle.FixedDialog;
+                inputForm.StartPosition = FormStartPosition.CenterScreen;
+                inputForm.Size = new Size(300, 150);
+                inputForm.MaximizeBox = false;
+                inputForm.MinimizeBox = false;
+
+                // Label for instruction
+                var label = new Label
+                {
+                    Text = "IP Address:",
+                    Location = new Point(20, 20),
+                    AutoSize = true
+                };
+
+                // TextBox for IP input
+                var textBox = new TextBox
+                {
+                    Width = 220,
+                    Location = new Point(20, 50),
+                    TabIndex = 0 // Sets TabIndex for keyboard navigation
+                };
+
+                // OK button
+                var buttonOk = new Button
+                {
+                    Text = "OK",
+                    Location = new Point(60, 90),
+                    DialogResult = DialogResult.OK,
+                    TabIndex = 1
+                };
+                inputForm.AcceptButton = buttonOk; // Pressing Enter submits
+
+                // Cancel button
+                var buttonCancel = new Button
+                {
+                    Text = "Cancel",
+                    Location = new Point(160, 90),
+                    DialogResult = DialogResult.Cancel,
+                    TabIndex = 2
+                };
+
+                // Adding controls to form
+                inputForm.Controls.Add(label);
+                inputForm.Controls.Add(textBox);
+                inputForm.Controls.Add(buttonOk);
+                inputForm.Controls.Add(buttonCancel);
+
+                // Show dialog and return result
+                return inputForm.ShowDialog() == DialogResult.OK ? textBox.Text : "192.168.0.101";
+            }
+        }
+
+
+        private bool SendScreenshot(string filePath, string androidIpAddress)
+        {
+            try
+            {
+                using (var client = new TcpClient(androidIpAddress, 12345))
+                using (var stream = client.GetStream())
+                using (var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read))
+                {
+                    // Send the filename first
+                    string fileName = Path.GetFileName(filePath);
+                    byte[] fileNameBytes = Encoding.UTF8.GetBytes(fileName + "\n");
+                    stream.Write(fileNameBytes, 0, fileNameBytes.Length);
+
+                    // Send the file data
+                    fileStream.CopyTo(stream);
+                }
+                Console.WriteLine("Screenshot sent successfully.");
+                return true;
+            }
+            catch (SocketException ex)
+            {
+                Console.WriteLine($"Socket exception: {ex.Message}");
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"General exception: {ex.Message}");
+                return false;
             }
         }
     }
